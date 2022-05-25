@@ -4,51 +4,56 @@ import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+
+import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
-import javax.net.ssl.HttpsURLConnection;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 
 public class DoPayment {
 
     public static void main(String[] args) {
 
-        String token="";
+        String token = "";
         String secretKey = "33949FCDF8791E4DC33E186BA30C93232870F093CCC2D4CCC4CE215B819B6550";
 
-        //paymentToken -> {JsonNodeClaim@3064} ""kSAops9Zwhos8hSTSeLTUceUerWzzPheCUDky6x/1xLwSPRc5i8CPXWGZ2JBQxTCJR1xhgwh0hfoFNLiclLIddG3XpTJtMpXtdsKnB3AgRkARFJ5u2V8imxsDEI7cxmZ""
         HashMap<String, Object> payment = new HashMap<>();
         HashMap<String, Object> code = new HashMap<>();
-        code.put("channelCode","CC");
-        payment.put("code",code);
+        code.put("channelCode", "CC");
+
+        payment.put("code", code);
+
         HashMap<String, Object> data = new HashMap<>();
-        data.put("name","m");
-        payment.put("data",data);
+        data.put("name", "prince");
+        data.put("email", "prince@example.com");
+        data.put("mobileNo", "1234567890");
+        data.put("accountNo", "1234567890");
+        data.put("securePayToken", "00acNz9uu0tZuVSSiQ...OwfCzy");
+
+        payment.put("data", data);
+
         HashMap<String, Object> payload = new HashMap<>();
-        payload.put("paymentToken","kSAops9Zwhos8hSTSeLTUXQbroQEn8/zdw2Zxncbom3D7gZo/CI63iF2jqgiTfTTjLOxV2yV2DqozU9je4QknjqJ57UF9l1uq3CSoULyDE3ImQNrIRwDX2HaPDLAFjkQ");
-        payload.put("payment",payment);
+        payload.put("paymentToken", "kSAops9Zwhos8hSTSeLTUYfNVgKzBg0STWD+INZ/X4aPPDEuc3x/U5xkEEP5K5ssSh4V7dv9HMmjs0ypa8PxxGWovYHGSDFfAgE0DbqRZP31NGQPaBwsyGEy7bnCcgk5");
+        payload.put("clientID", "wertyuijhgfdsdfghjjhgfd");
+        payload.put("locale", "en");
+        payload.put("payment", payment);
 
         try {
             Algorithm algorithm = Algorithm.HMAC256(secretKey);
-
-            token = JWT.create()
-                .withPayload(payload).sign(algorithm);
-
-        } catch (JWTCreationException | IllegalArgumentException e){
-            //Invalid Signing configuration / Couldn't convert Claims.
+            token = JWT.create().withPayload(payload).sign(algorithm);
+        } catch (JWTCreationException | IllegalArgumentException e) {
             e.printStackTrace();
         }
 
         JSONObject requestData = new JSONObject();
         requestData.put("payload", token);
 
-        try
-        {
+        try {
             String endpoint = "https://sandbox-pgw.2c2p.com/payment/4.1/payment";
             URL obj = new URL(endpoint);
             HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
@@ -89,9 +94,9 @@ public class DoPayment {
 
             HashMap<String, Object> capture = new HashMap<>();
 
-            capture.put("paymentToken",paymentToken);
+            capture.put("paymentToken", paymentToken);
 
-        }catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

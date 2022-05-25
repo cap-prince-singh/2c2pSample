@@ -1,12 +1,4 @@
-import com.nimbusds.jose.EncryptionMethod;
-import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jose.JWEAlgorithm;
-import com.nimbusds.jose.JWEHeader;
-import com.nimbusds.jose.JWEObject;
-import com.nimbusds.jose.JWSAlgorithm;
-import com.nimbusds.jose.JWSHeader;
-import com.nimbusds.jose.JWSObject;
-import com.nimbusds.jose.Payload;
+import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.RSADecrypter;
 import com.nimbusds.jose.crypto.RSAEncrypter;
 import com.nimbusds.jose.crypto.RSASSASigner;
@@ -15,46 +7,41 @@ import com.nimbusds.jose.crypto.bc.BouncyCastleProviderSingleton;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.shaded.json.JSONObject;
 import com.nimbusds.jwt.EncryptedJWT;
-import java.io.BufferedReader;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.net.ssl.HttpsURLConnection;
+import java.io.*;
 import java.net.URL;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.Security;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
-import java.text.ParseException;
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
-import javax.net.ssl.HttpsURLConnection;
-import org.bouncycastle.util.encoders.Base64;
 
 public class SettleDer {
 
     public static void main(String[] args)
-        throws IOException, JOSEException, NoSuchAlgorithmException, InvalidKeySpecException, CertificateException {
+            throws IOException, JOSEException, NoSuchAlgorithmException, InvalidKeySpecException, CertificateException {
 
         Security.addProvider(BouncyCastleProviderSingleton.getInstance());
         Security.setProperty("crypto.policy", "unlimited");
 
         String paymentRequest =
-            "<PaymentProcessRequest><version>3.8</version><merchantID>702702000001875</merchantID>"
-                + "<processType>S</processType><invoiceNo>pay11</invoiceNo><actionAmount>10.00</actionAmount></PaymentProcessRequest>";
+                "<PaymentProcessRequest>" +
+                        "<version>3.8</version>" +
+                        "<merchantID>702702000001875</merchantID>" +
+                        "<processType>I</processType>" +
+                        "<invoiceNo>1653485893165UDDH5ND</invoiceNo>" +
+                        "<actionAmount>150.00</actionAmount>" +
+                "</PaymentProcessRequest>";
 
         FileInputStream is = new FileInputStream(
-            "/Users/mihirvmarathe/IdeaProjects/2c2p/2c2p/jwt.cer"); ////2c2p public cert key
+                "/Users/prince/Builds/CAP/2c2psample/2c2p/jwt.cer"); ////2c2p public cert key
 
         JWEAlgorithm alg = JWEAlgorithm.RSA_OAEP;
         EncryptionMethod enc = EncryptionMethod.A256GCM;
@@ -65,7 +52,7 @@ public class SettleDer {
         RSAKey rsaJWE = RSAKey.parse(jwePubKey);
         RSAPublicKey jweRsaPubKey = rsaJWE.toRSAPublicKey();
 
-        File file = new File("/Users/mihirvmarathe/IdeaProjects/2c2p/self/script/private.der");
+        File file = new File("/Users/prince/Builds/CAP/2c2psample/self/script/private.der");
         FileInputStream fis = new FileInputStream(file);
         DataInputStream dis = new DataInputStream(fis);
 
@@ -76,7 +63,7 @@ public class SettleDer {
         PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(keyBytes);
         KeyFactory kf = KeyFactory.getInstance("RSA");
         java.security.interfaces.RSAPrivateKey jwsPrivateKey = (java.security.interfaces.RSAPrivateKey) kf
-            .generatePrivate(spec);
+                .generatePrivate(spec);
 
         KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
         keyGenerator.init(enc.cekBitLength());
@@ -127,12 +114,12 @@ public class SettleDer {
 
             boolean verified = jwsObjectRes.verify(new RSASSAVerifier(jweRsaPubKeyRes));
 
-            if(verified) {
+            if (verified) {
                 JWEObject jweRes = EncryptedJWT.parse(jwsObjectRes.getPayload().toString());
                 jweRes.decrypt(new RSADecrypter(jwsPrivateKey));
                 String responsePayload = jweRes.getPayload().toString();
                 System.out.println(responsePayload);
-            }else{
+            } else {
                 System.out.println("panic");
             }
         } catch (Exception e) {
