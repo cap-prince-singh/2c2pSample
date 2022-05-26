@@ -12,6 +12,8 @@ import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,14 +31,14 @@ public class GenerateToken {
         String fuelling = "https://orchestrator.crm-nightly-new.cc.capillarytech.com/orchestrator/payments/webhooks/2c2p/fuelling-callback";
         String mock = "https://94a48384-b3d4-40a1-8f1d-e60692ecf8a9.mock.pstmn.io";
 
-        String extC = "CAP_e542da72-dc2f-11ec-8027-8291769c483d";
+        String extC = "CAP_88b95263-dce9-11ec-8cbb-3a9eb2570bfe";
 
         payload.put("backendReturnUrl", mock + "?orgId=50906&userId=374831221&paymentProvider=2c2p123&isDefaultCard=true&extCorrelationID=" + extC);
-        payload.put("frontendReturnUrl", "https://princesingh.in");
         payload.put("merchantID", "702702000001875");
 
-        payload.put("invoiceNo", "1653487589240I9BXCGM");
-        payload.put("amount", 150.00);
+        payload.put("invoiceNo", "1653565612");
+        payload.put("amount", 200.00);
+        payload.put("cardTokens", Arrays.asList("28042218115231031647"));
 
         payload.put("description", "card test");
         payload.put("currencyCode", "SGD");

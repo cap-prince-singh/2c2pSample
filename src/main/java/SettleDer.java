@@ -36,7 +36,7 @@ public class SettleDer {
                         "<version>3.8</version>" +
                         "<merchantID>702702000001875</merchantID>" +
                         "<processType>I</processType>" +
-                        "<invoiceNo>1653485893165UDDH5ND</invoiceNo>" +
+                        "<invoiceNo>1653487589240I9BXCGM</invoiceNo>" +
                         "<actionAmount>150.00</actionAmount>" +
                 "</PaymentProcessRequest>";
 
@@ -77,7 +77,7 @@ public class SettleDer {
         JWSHeader headerc = new JWSHeader(JWSAlgorithm.PS256);
         JWSObject jwsObject = new JWSObject(headerc, new Payload(jwePayload));
         jwsObject.sign(signer);
-        String jwsPayload = jwsObject.serialize();
+      String jwsPayload = jwsObject.serialize();
 
         JSONObject requestData = new JSONObject();
         requestData.put("payload", jwsPayload);
@@ -96,7 +96,7 @@ public class SettleDer {
             wr.writeBytes(jwsPayload);
             wr.flush();
             wr.close();
-            System.out.println(requestData.toJSONString());
+            System.out.println("ABC  " + requestData.toJSONString());
 
             BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
             String inputLine;
